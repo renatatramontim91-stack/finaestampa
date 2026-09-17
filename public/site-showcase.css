@@ -28,3 +28,6 @@
 .card .price[hidden]{display:none}
 .product-whatsapp{display:block;margin-top:14px;padding:12px 10px;border-radius:8px;background:#25d366;color:#fff!important;text-align:center;font:800 12px Manrope;text-decoration:none;box-shadow:0 8px 15px rgba(37,211,102,.22)}
 .product-whatsapp:hover{background:#1fba5a}
+
+
+.image-unavailable{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:20px;text-align:center;color:#526366;background:linear-gradient(145deg,#f7f5ef,#e6e2da)}.image-unavailable span{font-size:2rem}.image-unavailable strong{font-size:.9rem}.image-unavailable small{font-size:.75rem;color:#6c7c7e}
