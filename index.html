@@ -576,5 +576,6 @@
 <script src="/site-extra.js"></script>
 <link rel="stylesheet" href="/site-showcase.css">
 <script src="/site-showcase.js?v=precos-20260920"></script>
+<script>document.querySelectorAll('.card .price').forEach(function(price){if(/R\$\s*\d/.test(price.textContent||'')){price.hidden=false;price.classList.add('product-price-visible')}});</script>
 </body>
 </html>
