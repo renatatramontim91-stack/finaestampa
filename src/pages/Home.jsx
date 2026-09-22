@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { getFeaturedProducts } from '../utils/products'
 import { useCart } from '../utils/cartContext'
 import { useSEO } from '../utils/useSEO'
-import ReviewCard, { sampleReviews } from '../components/ReviewCard'
 import ParallaxSection from '../components/ParallaxSection'
 import CountUp from '../components/CountUp'
 import ShineButton from '../components/ShineButton'
@@ -284,28 +283,6 @@ export default function Home() {
                 {index < 3 && (
                   <div className="hidden md:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-cyan-500/50 to-transparent -translate-x-1/2"></div>
                 )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Reviews Section */}
-      <section className="py-20">
-        <div className="container-custom">
-          <div className="text-center mb-12 animate-in">
-            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              O Que Nossos <span className="gradient-text">Clientes</span> Dizem
-            </h2>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">
-              Mais de 1000 clientes satisfeitos em todo o Brasil
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {sampleReviews.map((review, index) => (
-              <div key={review.id} className="animate-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <ReviewCard review={review} />
               </div>
             ))}
           </div>
