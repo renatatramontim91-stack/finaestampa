@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts } from '../utils/products'
+import ReviewCard, { sampleReviews } from '../components/ReviewCard'
 import { useCart } from '../utils/cartContext'
 import { useSEO } from '../utils/useSEO'
 import ParallaxSection from '../components/ParallaxSection'
@@ -289,6 +290,32 @@ export default function Home() {
         </div>
       </section>
       
+      {/* Real Google Reviews */}
+      <section className="py-20">
+        <div className="container-custom">
+          <div className="text-center mb-12 animate-in">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Avaliações reais no <span className="gradient-text">Google</span>
+            </h2>
+            <p className="text-white/70 text-lg max-w-2xl mx-auto">
+              Nota 4,9 de 5 com 39 avaliações de clientes
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {sampleReviews.map((review, index) => (
+              <div key={review.id} className="animate-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <ReviewCard review={review} />
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <a href="https://www.google.com/search?q=fina+estampa+produtos+personalizados+cap%C3%A3o+da+canoa&oq=fin&gs_lcrp=EgZjaHJvbWUqCAgBEEUYJxg7MggIABBFGCcYOzIICAEQRRgnGDsyBggCEEUYOTIMCAMQLhhDGIAEGIoFMg0IBBAAGLEDGIAEGLQHMgoIBRAAGLEDGIAEMg0IBhAAGIMBGLEDGIAEMhAIBxAuGMcBGLEDGNEDGIAEMgoICBAAGLEDGIAEMg0ICRAAGIMBGLEDGIAE0gEJMzIwN2owajE1qAIIsAIB8QVkq8ugpcbLGQ&sourceid=chrome&source=chrome.rb&ie=UTF-8#mpd=~14476382692963548990/customers/reviews" target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-lg">
+              Ver todas as avaliações no Google
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container-custom">
