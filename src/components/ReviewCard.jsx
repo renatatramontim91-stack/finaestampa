@@ -22,34 +22,15 @@ export default function ReviewCard({ review }) {
 
 // Sample reviews data - expanded
 export const sampleReviews = [
-  {
-    id: 1,
-    name: 'Jacksiane Gottlieb',
-    rating: 5,
-    comment: 'Amamos as camisetas. Além da arte bem feita os tamanhos foram fidedignos!',
-    date: 'Setembro 2026'
-  },
-  {
-    id: 2,
-    name: 'Aline Mendes',
-    rating: 5,
-    comment: 'São extremamente atenciosos, atentos a todos os detalhes, sempre fui muito bem atendida. Super recomendo. E entrega muito rápida.',
-    date: 'Setembro 2026'
-  },
-  {
-    id: 3,
-    name: 'Alpha Pouey',
-    rating: 5,
-    comment: 'Ótimo atendimento, e produtos de ótima qualidade.',
-    date: 'Setembro 2026'
-  },
-  {
-    id: 4,
-    name: 'Ramon Zirbes',
-    rating: 5,
-    comment: 'Loja com ótima qualidade de produtos.',
-    date: 'Setembro 2026'
-  }
+  { id: 1, name: 'Jacksiane Gottlieb', rating: 5, comment: 'Amamos as camisetas. Além da arte bem feita os tamanhos foram fidedignos!', date: 'Setembro 2026' },
+  { id: 2, name: 'Aline Mendes', rating: 5, comment: 'São extremamente atenciosos, atentos a todos os detalhes, sempre fui muito bem atendida. Super recomendo. E entrega muito rápida.', date: 'Setembro 2026' },
+  { id: 3, name: 'Alpha Pouey', rating: 5, comment: 'Ótimo atendimento, e produtos de ótima qualidade.', date: 'Setembro 2026' },
+  { id: 4, name: 'Ramon Zirbes', rating: 5, comment: 'Loja com ótima qualidade de produtos.', date: 'Setembro 2026' },
+  { id: 5, name: 'Davi Marinho', rating: 5, comment: 'Empresa top! Produtos de excelente qualidade!! Recomendo!!', date: 'Setembro 2026' },
+  { id: 6, name: 'Jean Marcel', rating: 5, comment: 'Empresa com extremo zelo pelo cliente! Ótimos produtos e excelente atendimento!', date: 'Setembro 2026' },
+  { id: 7, name: 'Geziel Paz', rating: 5, comment: 'Excelente recomendo, é pontual com a entrega', date: 'Setembro 2026' },
+  { id: 8, name: 'Daniela Scheffer', rating: 5, comment: 'Produtos de excelente qualidade. Já encomendei várias vezes, inclusive para dar se presente e foi um sucesso!', date: 'Setembro 2026' },
+  { id: 9, name: 'Mariana Moreira', rating: 5, comment: 'Ótima experiência, produtos de qualidade! Super rápido a entrega!', date: 'Setembro 2026' }
 ]
 
 // Get random reviews for display
