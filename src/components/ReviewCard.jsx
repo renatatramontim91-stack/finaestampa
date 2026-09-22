@@ -30,7 +30,11 @@ export const sampleReviews = [
   { id: 6, name: 'Jean Marcel', rating: 5, comment: 'Empresa com extremo zelo pelo cliente! Ótimos produtos e excelente atendimento!', date: 'Setembro 2026' },
   { id: 7, name: 'Geziel Paz', rating: 5, comment: 'Excelente recomendo, é pontual com a entrega', date: 'Setembro 2026' },
   { id: 8, name: 'Daniela Scheffer', rating: 5, comment: 'Produtos de excelente qualidade. Já encomendei várias vezes, inclusive para dar se presente e foi um sucesso!', date: 'Setembro 2026' },
-  { id: 9, name: 'Mariana Moreira', rating: 5, comment: 'Ótima experiência, produtos de qualidade! Super rápido a entrega!', date: 'Setembro 2026' }
+  { id: 9, name: 'Mariana Moreira', rating: 5, comment: 'Ótima experiência, produtos de qualidade! Super rápido a entrega!', date: 'Setembro 2026' },
+  { id: 10, name: 'Jonas Augusto Schiefelbein', rating: 5, comment: 'Ótimo serviço, produtos de qualidade. 👏🏻👏🏻👏🏻', date: 'Setembro 2026' },
+  { id: 11, name: 'Marcia Rech', rating: 5, comment: 'A caneca ficou linda, super indico', date: 'Setembro 2026' },
+  { id: 12, name: 'Almei Rocha', rating: 5, comment: 'Fui atendida rapidamente e fizeram conforme eu queria. Com muito carinho. Nota 1000', date: 'Setembro 2026' },
+  { id: 13, name: 'Fernando Rogerio Oliveira Alves Alves', rating: 5, comment: 'Já fiz vários uniforme boa empresa recomendo pelo atendimento e pela compreensão de atendimento', date: 'Setembro 2026' }
 ]
 
 // Get random reviews for display
