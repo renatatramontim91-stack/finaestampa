@@ -108,7 +108,7 @@ export default function Footer() {
         
         <div className="border-t border-white/10 mt-8 pt-8 text-center">
           <p className="text-white/60 text-sm">
-            © {currentYear} Fina Estampa. Todos os direitos reservados.
+            © 2015 Fina Estampa. Todos os direitos reservados.
           </p>
         </div>
       </div>
