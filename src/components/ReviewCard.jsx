@@ -34,7 +34,25 @@ export const sampleReviews = [
   { id: 10, name: 'Jonas Augusto Schiefelbein', rating: 5, comment: 'Ótimo serviço, produtos de qualidade. 👏🏻👏🏻👏🏻', date: 'Setembro 2026' },
   { id: 11, name: 'Marcia Rech', rating: 5, comment: 'A caneca ficou linda, super indico', date: 'Setembro 2026' },
   { id: 12, name: 'Almei Rocha', rating: 5, comment: 'Fui atendida rapidamente e fizeram conforme eu queria. Com muito carinho. Nota 1000', date: 'Setembro 2026' },
-  { id: 13, name: 'Fernando Rogerio Oliveira Alves Alves', rating: 5, comment: 'Já fiz vários uniforme boa empresa recomendo pelo atendimento e pela compreensão de atendimento', date: 'Setembro 2026' }
+  { id: 13, name: 'Fernando Rogerio Oliveira Alves Alves', rating: 5, comment: 'Já fiz vários uniforme boa empresa recomendo pelo atendimento e pela compreensão de atendimento', date: 'Setembro 2026' },
+  { id: 14, name: 'Keyliane Gonçalves', rating: 5, comment: 'Ótimo atendimento, as camisetas com um tecido ótimo e lindas', date: 'Avaliação no Google' },
+  { id: 15, name: 'Dilma Maria Ramos Ferreira', rating: 5, comment: 'Ótimo atendimento! Trabalho muito bom!', date: 'Avaliação no Google' },
+  { id: 16, name: 'Andriele Moraes', rating: 5, comment: 'Adoro o trabalho. Impressões de qualidade e com muito cuidado no atendimento, entrega rápida e eficiente. Já comprei várias vezes e continuarei comprando. Super recomendo.', date: 'Avaliação no Google' },
+  { id: 17, name: 'Nara Regina', rating: 5, comment: 'Produtos muito lindos e de ótima qualidade.', date: 'Avaliação no Google' },
+  { id: 18, name: 'Tayna Aparecida', rating: 5, comment: 'Super indico, entrega rápida, produto de alta qualidade. Vale muito a pena, amei!', date: 'Avaliação no Google' },
+  { id: 19, name: 'Viviani Vargas', rating: 5, comment: 'Adorei o trabalho da Fina Estampa! Atendimento excelente, serviço muito bem feito e entrega super rápida. Recomendo de olhos fechados!', date: 'Avaliação no Google' },
+  { id: 20, name: 'Victoria Carolina', rating: 5, comment: 'Produto de qualidade e entrega no prazo, muito bom, super indico.', date: 'Avaliação no Google' },
+  { id: 21, name: 'Matheus Rodrigues', rating: 5, comment: 'Excelente atendimento e cuidado nos detalhes do pedido. Recomendo muito e, sempre que precisar, voltarei.', date: 'Avaliação no Google' },
+  { id: 22, name: 'Kailainy Nunes', rating: 5, comment: 'Trabalho super ágil e atendimento excelente! A caneca que encomendei ficou linda, feita com muito capricho.', date: 'Avaliação no Google' },
+  { id: 23, name: 'Cinara Paungartner Becker', rating: 5, comment: 'Eu recomendo, produtos de ótima qualidade, bom atendimento e com preços muito acessíveis.', date: 'Avaliação no Google' },
+  { id: 24, name: 'Thainá Rodrigues', rating: 5, comment: 'Serviço de qualidade! Atendimento top!', date: 'Avaliação no Google' },
+  { id: 25, name: 'Camila Moureira', rating: 5, comment: 'Maravilhosa.', date: 'Avaliação no Google' },
+  { id: 26, name: 'Ananda Garcia', rating: 5, comment: 'Super indico. Trabalho perfeito.', date: 'Avaliação no Google' },
+  { id: 27, name: 'Sueli Moraes', rating: 5, comment: 'Produtos de qualidade e atendimento muito bom. Recomendo.', date: 'Avaliação no Google' },
+  { id: 28, name: 'Mayra Ressel', rating: 5, comment: 'Serviço descomplicado e ágil. Adorei o atendimento e, caso eu precise novamente, será o lugar que vou procurar. Muito obrigada.', date: 'Avaliação no Google' },
+  { id: 29, name: 'Carlene Leal', rating: 5, comment: 'Super recomendo, atendimento de qualidade e conta com uma variedade de produtos personalizados.', date: 'Avaliação no Google' },
+  { id: 30, name: 'Altiles Marcos da Silva', rating: 5, comment: 'Ótima.', date: 'Avaliação no Google' },
+  { id: 31, name: 'Indio Schultz', rating: 5, comment: 'Ótimos produtos, praticidade e flexibilidade no pedido e entrega rápida! Top, recomendo.', date: 'Avaliação no Google' }
 ]
 
 // Get random reviews for display
