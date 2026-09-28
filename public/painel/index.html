@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="/painel/manifest.webmanifest">
+<title>Painel Fina Estampa</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#182033;--muted:#6f7788;--line:#e9edf5;--nav:#111827;--pink:#f22f7d;--pink2:#ff5a9d;--green:#19b36b;--blue:#2f80ed;--amber:#f0a51a;--violet:#7b61ff;--red:#e34b4b;--shadow:0 10px 30px rgba(16,24,40,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}.side{background:linear-gradient(180deg,#111827,#0b1220);color:white;padding:24px 16px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;padding:3px 8px 24px}.mark{width:42px;height:42px;border:2px solid #ff4d97;border-radius:12px;display:grid;place-items:center;font-weight:900;color:#ff4d97}.brand b{font-size:23px;font-family:Georgia,serif;font-style:italic}.brand small{display:block;letter-spacing:2px;font-size:8px;color:#cbd5e1;margin-top:4px}
+.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#dbe4f1;text-align:left;padding:13px 14px;border-radius:11px;cursor:pointer;display:flex;gap:11px;align-items:center}.nav button.active,.nav button:hover{background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff}.new{margin-top:18px;width:100%;border:0;background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff;padding:14px;border-radius:12px;font-weight:800;cursor:pointer}.side-foot{position:absolute;bottom:20px;left:22px;right:22px;color:#aab4c3;font-size:12px;border-top:1px solid #263247;padding-top:16px}
+.main{padding:22px 24px 50px;min-width:0}.top{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:20px}.search{flex:1;max-width:560px;position:relative}.search input{width:100%;padding:13px 16px 13px 42px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:0}.search span{position:absolute;left:14px;top:11px}.user{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;background:#281448;color:#fff;display:grid;place-items:center;font-weight:800}.hello h1{margin:0 0 3px;font-size:28px}.hello p{margin:0;color:var(--muted)}.row-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:8px 0 18px}.date{color:var(--muted);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 2px 5px rgba(16,24,40,.02)}.card .label{font-size:13px;color:var(--muted)}.card .value{font-size:26px;font-weight:900;margin-top:6px}.card .sub{font-size:11px;color:var(--muted);margin-top:5px}.accent-green{background:linear-gradient(145deg,#f0fff7,#fff)}.accent-blue{background:linear-gradient(145deg,#eef8ff,#fff)}.accent-amber{background:linear-gradient(145deg,#fff8e8,#fff)}.accent-pink{background:linear-gradient(145deg,#fff0f7,#fff)}
+.status-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}.status-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.status-card b{font-size:22px;display:block}.status-card span{font-size:12px;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 5px rgba(16,24,40,.02);overflow:hidden;margin-bottom:18px}.panel-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-head h2{font-size:16px;margin:0}.panel-head button,.mini-btn{border:0;background:none;color:var(--pink);font-weight:700;cursor:pointer}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:820px}th,td{padding:12px 14px;border-bottom:1px solid #f0f2f6;text-align:left;font-size:13px}th{color:#596174;background:#fbfcfe;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.badge{display:inline-flex;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800}.orcamento{background:#f0f2f6;color:#5f6778}.confirmado{background:#eaf3ff;color:#1d65c1}.producao{background:#fff3d7;color:#a16a00}.pronto{background:#eee9ff;color:#6547d8}.entregue{background:#dff8ea;color:#087c44}.cancelado{background:#ffe8e8;color:#a72f2f}
+.actions{display:flex;gap:6px}.icon-btn{border:1px solid var(--line);background:white;border-radius:8px;padding:6px 8px;cursor:pointer}.icon-btn:hover{background:#f8fafc}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}.empty{padding:32px 20px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink);margin-bottom:6px}.page{display:none}.page.active{display:block}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap}.primary{border:0;background:linear-gradient(90deg,var(--pink),var(--pink2));color:#fff;padding:11px 14px;border-radius:10px;font-weight:800;cursor:pointer}.secondary{border:1px solid var(--line);background:#fff;padding:10px 13px;border-radius:10px;font-weight:700;cursor:pointer}.danger{color:var(--red)}
+.modal{position:fixed;inset:0;background:rgba(13,20,34,.52);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modal-card{background:#fff;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:18px;box-shadow:0 22px 70px rgba(0,0,0,.25)}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#f2f4f8;border-radius:9px;width:34px;height:34px;cursor:pointer}.form{padding:20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:800;color:#596174}.field input,.field select{border:1px solid #dfe4ec;border-radius:10px;padding:11px 12px;outline:none}.field input:focus,.field select:focus{border-color:#f45a9c;box-shadow:0 0 0 3px #ffe8f2}.modal-foot{padding:0 20px 20px;display:flex;justify-content:flex-end;gap:10px}
+.notice{padding:13px 15px;background:#fff7df;border:1px solid #f4dd92;border-radius:12px;color:#795d12;font-size:12px;margin-bottom:16px}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.big-number{font-size:28px;font-weight:900}.muted{color:var(--muted)}.stock-line{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line)}.stock-line:last-child{border-bottom:0}.qty{font-weight:900;font-size:19px}
+.mobile-head{display:none}.fab{display:none}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{display:none}.main{padding:14px 12px 90px}.mobile-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.mobile-head b{font-family:Georgia,serif;font-style:italic;font-size:22px}.top{gap:8px}.user{display:none}.row-head{align-items:flex-start}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.mobile-nav{position:fixed;z-index:30;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px calc(7px + env(safe-area-inset-bottom));box-shadow:0 -6px 25px rgba(0,0,0,.08)}.mobile-nav button{border:0;background:none;font-size:10px;color:#596174;padding:4px 2px}.mobile-nav button.active{color:var(--pink);font-weight:800}.mobile-nav i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}.fab{display:grid;position:fixed;right:18px;bottom:76px;width:52px;height:52px;border-radius:50%;border:0;background:var(--pink);color:white;place-items:center;font-size:27px;box-shadow:0 10px 25px rgba(242,47,125,.35);z-index:31}.form{grid-template-columns:1fr}.field.full{grid-column:auto}}
+@media(max-width:560px){.cards{grid-template-columns:1fr 1fr}.card .value{font-size:20px}.kpis{grid-template-columns:1fr}.hello h1{font-size:23px}.search input{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div class="mark">FE</div><div><b>Fina Estampa</b><small>PRODUTOS PERSONALIZADOS</small></div></div>
+  <div class="nav">
+    <button class="active" data-page="inicio">🏠 Início</button>
+    <button data-page="pedidos">🛒 Pedidos</button>
+    <button data-page="clientes">👥 Clientes</button>
+    <button data-page="estoque">📦 Estoque</button>
+    <button data-page="financeiro">💰 Financeiro</button>
+    <button data-page="config">⚙️ Backup</button>
+  </div>
+  <button class="new" id="newOrderSide">＋ Novo pedido</button>
+  <div class="side-foot">Fina Estampa • Desde 2015<br><span style="color:#ff6aa7">♥</span> Controle simples para o dia a dia</div>
+</aside>
+
+<main class="main">
+  <div class="mobile-head"><b>Fina Estampa</b><span class="muted">Painel</span></div>
+  <div class="top">
+    <div class="search"><span>⌕</span><input id="search" placeholder="Buscar pedido, cliente ou produto..."></div>
+    <div class="user"><div class="avatar">FE</div><div><b>Fina Estampa</b><small style="display:block;color:#7b8493">Administrador</small></div></div>
+  </div>
+
+  <section id="inicio" class="page active">
+    <div class="row-head"><div class="hello"><h1>Olá! 👋</h1><p>Aqui está o resumo da sua loja.</p></div><div class="date" id="today"></div></div>
+    <div class="notice">🔒 Nesta primeira versão, os dados ficam salvos somente neste navegador. Faça um backup pelo menu “Backup” de tempos em tempos.</div>
+    <div class="cards">
+      <div class="card accent-green"><div class="label">Vendas cadastradas</div><div class="value" id="kSales">R$ 0,00</div><div class="sub">Valor total dos pedidos</div></div>
+      <div class="card accent-blue"><div class="label">Recebido</div><div class="value" id="kReceived">R$ 0,00</div><div class="sub" id="kReceivedSub">0% do total</div></div>
+      <div class="card accent-amber"><div class="label">A receber</div><div class="value" id="kPending">R$ 0,00</div><div class="sub">Saldos pendentes</div></div>
+      <div class="card accent-pink"><div class="label">Em produção</div><div class="value" id="kProduction">0</div><div class="sub">Pedidos em andamento</div></div>
+    </div>
+    <div class="status-grid">
+      <div class="status-card"><b id="sOrc">0</b><span>Orçamentos</span></div>
+      <div class="status-card"><b id="sConf">0</b><span>Confirmados</span></div>
+      <div class="status-card"><b id="sProd">0</b><span>Em produção</span></div>
+      <div class="status-card"><b id="sReady">0</b><span>Prontos</span></div>
+      <div class="status-card"><b id="sDone">0</b><span>Entregues</span></div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <div class="panel-head"><h2>Pedidos recentes</h2><button data-go="pedidos">Ver todos</button></div>
+        <div class="table-wrap"><table><thead><tr><th>#</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Recebido</th><th>Saldo</th><th>Status</th><th>Prazo</th></tr></thead><tbody id="recentRows"></tbody></table></div>
+        <div class="empty" id="recentEmpty"><b>Nenhum pedido ainda</b>Clique em “Novo pedido” para começar.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Próximas entregas</h2></div>
+        <div id="upcoming"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pedidos" class="page">
+    <div class="row-head"><div class="hello"><h1>Pedidos</h1><p>Cadastre e acompanhe todos os pedidos.</p></div><button class="primary" id="newOrderTop">＋ Novo pedido</button></div>
+    <div class="panel"><div class="table-wrap"><table><thead><tr><th>#</th><th>Cliente</th><th>Produto</th><th>Qtd.</th><th>Total</th><th>Recebido</th><th>Saldo</th><th>Status</th><th>Prazo</th><th>Ações</th></tr></thead><tbody id="orderRows"></tbody></table></div><div class="empty" id="ordersEmpty"><b>Nenhum pedido cadastrado</b>Teu primeiro pedido vai aparecer aqui.</div></div>
+  </section>
+
+  <section id="clientes" class="page">
+    <div class="row-head"><div class="hello"><h1>Clientes</h1><p>A lista é criada automaticamente pelos pedidos.</p></div></div>
+    <div class="panel"><div class="table-wrap"><table style="min-width:650px"><thead><tr><th>Cliente</th><th>Telefone</th><th>Pedidos</th><th>Total comprado</th><th>Último pedido</th></tr></thead><tbody id="clientRows"></tbody></table></div><div class="empty" id="clientsEmpty"><b>Nenhum cliente ainda</b>Ao cadastrar pedidos, os clientes aparecem automaticamente.</div></div>
+  </section>
+
+  <section id="estoque" class="page">
+    <div class="row-head"><div class="hello"><h1>Estoque</h1><p>Pode cadastrar aos poucos, sem precisar contar tudo agora.</p></div><button class="primary" id="newStock">＋ Adicionar item</button></div>
+    <div class="notice">💡 Sugestão: comece somente pelos itens que tu mais usa, como camisetas e canecas. O restante pode entrar depois.</div>
+    <div class="panel" id="stockList"></div>
+  </section>
+
+  <section id="financeiro" class="page">
+    <div class="row-head"><div class="hello"><h1>Financeiro</h1><p>Resumo automático com base nos pedidos.</p></div></div>
+    <div class="kpis">
+      <div class="card"><div class="label">Faturamento cadastrado</div><div class="big-number" id="fTotal">R$ 0,00</div></div>
+      <div class="card"><div class="label">Já recebido</div><div class="big-number" id="fReceived">R$ 0,00</div></div>
+      <div class="card"><div class="label">Ainda a receber</div><div class="big-number" id="fPending">R$ 0,00</div></div>
+    </div>
+    <div class="panel" style="margin-top:18px"><div class="panel-head"><h2>Pedidos com saldo pendente</h2></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Cliente</th><th>Total</th><th>Recebido</th><th>Saldo</th><th>Status</th></tr></thead><tbody id="pendingRows"></tbody></table></div><div class="empty" id="pendingEmpty"><b>Nenhum saldo pendente</b>Quando houver valores a receber, eles aparecerão aqui.</div></div>
+  </section>
+
+  <section id="config" class="page">
+    <div class="row-head"><div class="hello"><h1>Backup</h1><p>Proteja e transfira teus dados.</p></div></div>
+    <div class="panel">
+      <div class="panel-head"><h2>Dados deste dispositivo</h2></div>
+      <div style="padding:18px">
+        <p class="muted" style="max-width:720px">O backup salva pedidos e estoque em um arquivo. Guarde esse arquivo no computador ou Google Drive. Para usar em outro navegador/dispositivo, faça o backup aqui e importe lá.</p>
+        <div class="toolbar"><button class="primary" id="backupBtn">⬇ Baixar backup</button><label class="secondary" style="cursor:pointer">⬆ Importar backup<input id="restoreInput" type="file" accept="application/json" hidden></label><button class="secondary" id="csvBtn">Planilha CSV</button><button class="secondary danger" id="clearBtn">Apagar todos os dados</button></div>
+        <p class="muted" id="storageInfo" style="margin-top:18px"></p>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="mobile-nav" style="display:none">
+  <button class="active" data-page="inicio"><i>⌂</i>Início</button>
+  <button data-page="pedidos"><i>🛒</i>Pedidos</button>
+  <button data-page="clientes"><i>👥</i>Clientes</button>
+  <button data-page="estoque"><i>📦</i>Estoque</button>
+  <button data-page="financeiro"><i>💰</i>Financeiro</button>
+</div>
+<button class="fab" id="fab">＋</button>
+
+<div class="modal" id="orderModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="orderModalTitle">Novo pedido</h3><button class="close" data-close="orderModal">✕</button></div>
+    <form id="orderForm">
+      <input type="hidden" id="oId">
+      <div class="form">
+        <div class="field"><label>Cliente *</label><input id="oClient" required placeholder="Nome do cliente"></div>
+        <div class="field"><label>WhatsApp / telefone</label><input id="oPhone" placeholder="(51) 99999-9999"></div>
+        <div class="field full"><label>Produto(s) *</label><input id="oProduct" required placeholder="Ex.: 10 canecas brancas personalizadas"></div>
+        <div class="field"><label>Quantidade</label><input id="oQty" type="number" min="1" value="1"></div>
+        <div class="field"><label>Status</label><select id="oStatus"><option>Orçamento</option><option>Confirmado</option><option>Em produção</option><option>Pronto</option><option>Entregue</option><option>Cancelado</option></select></div>
+        <div class="field"><label>Valor total (R$) *</label><input id="oTotal" type="number" step="0.01" min="0" required placeholder="0,00"></div>
+        <div class="field"><label>Valor recebido (R$)</label><input id="oPaid" type="number" step="0.01" min="0" value="0"></div>
+        <div class="field"><label>Prazo / entrega</label><input id="oDue" type="date"></div>
+        <div class="field"><label>Forma de pagamento</label><select id="oPayMethod"><option>PIX</option><option>Dinheiro</option><option>Cartão</option><option>Outro</option></select></div>
+        <div class="field full"><label>Observações</label><input id="oNotes" placeholder="Ex.: arte aprovada, falta confirmar tamanho..."></div>
+      </div>
+      <div class="modal-foot"><button type="button" class="secondary" data-close="orderModal">Cancelar</button><button class="primary" type="submit">Salvar pedido</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="stockModal">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-head"><h3 id="stockModalTitle">Adicionar item</h3><button class="close" data-close="stockModal">✕</button></div>
+    <form id="stockForm">
+      <input type="hidden" id="sId">
+      <div class="form">
+        <div class="field full"><label>Produto *</label><input id="sName" required placeholder="Ex.: Camiseta branca G"></div>
+        <div class="field"><label>Categoria</label><select id="sCategory"><option>Camisetas</option><option>Canecas</option><option>Azulejos</option><option>Almofadas</option><option>Bonés</option><option>Outros</option></select></div>
+        <div class="field"><label>Quantidade</label><input id="sQty" type="number" min="0" value="0"></div>
+      </div>
+      <div class="modal-foot"><button type="button" class="secondary" data-close="stockModal">Cancelar</button><button class="primary" type="submit">Salvar item</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+const KEY='finaEstampaPainelV1';
+const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0));
+const safe=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const todayISO=()=>new Date().toISOString().slice(0,10);
+let state=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{orders:[],stock:[]}}catch{return{orders:[],stock:[]}}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
+function nextOrder(){return String((state.orders.reduce((m,o)=>Math.max(m,Number(o.code)||0),0)+1)).padStart(4,'0')}
+function badge(status){const map={'Orçamento':'orcamento','Confirmado':'confirmado','Em produção':'producao','Pronto':'pronto','Entregue':'entregue','Cancelado':'cancelado'};return '<span class="badge '+(map[status]||'orcamento')+'">'+safe(status)+'</span>'}
+function dueText(d){if(!d)return'—';const [y,m,day]=d.split('-');return day+'/'+m+'/'+y}
+function renderAll(){renderDashboard();renderOrders();renderClients();renderStock();renderFinance();document.getElementById('storageInfo').textContent=state.orders.length+' pedido(s) e '+state.stock.length+' item(ns) de estoque salvos neste navegador.'}
+function validOrders(){return state.orders.filter(o=>o.status!=='Cancelado')}
+function totals(){const os=validOrders();const total=os.reduce((s,o)=>s+Number(o.total||0),0),paid=os.reduce((s,o)=>s+Math.min(Number(o.paid||0),Number(o.total||0)),0);return{total,paid,pending:Math.max(total-paid,0)}}
+function renderDashboard(){
+ const t=totals(),os=state.orders;
+ kSales.textContent=money(t.total);kReceived.textContent=money(t.paid);kPending.textContent=money(t.pending);
+ kReceivedSub.textContent=(t.total?Math.round(t.paid/t.total*100):0)+'% do total';
+ kProduction.textContent=os.filter(o=>o.status==='Em produção').length;
+ sOrc.textContent=os.filter(o=>o.status==='Orçamento').length;sConf.textContent=os.filter(o=>o.status==='Confirmado').length;sProd.textContent=os.filter(o=>o.status==='Em produção').length;sReady.textContent=os.filter(o=>o.status==='Pronto').length;sDone.textContent=os.filter(o=>o.status==='Entregue').length;
+ const recent=[...os].sort((a,b)=>b.created.localeCompare(a.created)).slice(0,6);
+ recentRows.innerHTML=recent.map(o=>'<tr><td>#'+safe(o.code)+'</td><td><b>'+safe(o.client)+'</b></td><td>'+safe(o.product)+'</td><td>'+money(o.total)+'</td><td>'+money(o.paid)+'</td><td>'+money(Math.max(Number(o.total)-Number(o.paid),0))+'</td><td>'+badge(o.status)+'</td><td>'+dueText(o.due)+'</td></tr>').join('');
+ recentEmpty.style.display=recent.length?'none':'block';
+ const ups=os.filter(o=>o.due&&o.status!=='Entregue'&&o.status!=='Cancelado').sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
+ upcoming.innerHTML=ups.length?ups.map(o=>'<div class="stock-line"><div><b>'+dueText(o.due)+'</b><div class="muted" style="font-size:12px">'+safe(o.client)+' • '+safe(o.product)+'</div></div>'+badge(o.status)+'</div>').join(''):'<div class="empty"><b>Nenhuma entrega agendada</b>Os prazos dos pedidos aparecem aqui.</div>';
+}
+function filteredOrders(){const q=(search.value||'').trim().toLowerCase();return [...state.orders].filter(o=>!q||[o.code,o.client,o.phone,o.product,o.status].join(' ').toLowerCase().includes(q)).sort((a,b)=>b.created.localeCompare(a.created))}
+function renderOrders(){
+ const os=filteredOrders();orderRows.innerHTML=os.map(o=>'<tr><td>#'+safe(o.code)+'</td><td><b>'+safe(o.client)+'</b><div class="muted" style="font-size:11px">'+safe(o.phone||'')+'</div></td><td>'+safe(o.product)+'</td><td>'+safe(o.qty)+'</td><td>'+money(o.total)+'</td><td>'+money(o.paid)+'</td><td>'+money(Math.max(Number(o.total)-Number(o.paid),0))+'</td><td>'+badge(o.status)+'</td><td>'+dueText(o.due)+'</td><td><div class="actions"><button class="icon-btn" onclick="editOrder(\''+o.id+'\')">✎</button><button class="icon-btn" onclick="deleteOrder(\''+o.id+'\')">🗑</button></div></td></tr>').join('');
+ ordersEmpty.style.display=os.length?'none':'block';
+}
+function renderClients(){
+ const map={};state.orders.filter(o=>o.status!=='Cancelado').forEach(o=>{const k=(o.client||'').trim().toLowerCase();if(!k)return;if(!map[k])map[k]={name:o.client,phone:o.phone||'',count:0,total:0,last:o.created};map[k].count++;map[k].total+=Number(o.total||0);if(o.created>map[k].last){map[k].last=o.created;if(o.phone)map[k].phone=o.phone}});
+ const cs=Object.values(map).sort((a,b)=>b.last.localeCompare(a.last));clientRows.innerHTML=cs.map(c=>'<tr><td><b>'+safe(c.name)+'</b></td><td>'+safe(c.phone||'—')+'</td><td>'+c.count+'</td><td>'+money(c.total)+'</td><td>'+dueText(c.last.slice(0,10))+'</td></tr>').join('');clientsEmpty.style.display=cs.length?'none':'block';
+}
+function renderStock(){
+ if(!state.stock.length){stockList.innerHTML='<div class="empty"><b>Estoque ainda não cadastrado</b>Tu pode começar por um produto e ir adicionando aos poucos.</div>';return}
+ stockList.innerHTML=state.stock.sort((a,b)=>a.name.localeCompare(b.name)).map(s=>'<div class="stock-line"><div><b>'+safe(s.name)+'</b><div class="muted" style="font-size:12px">'+safe(s.category)+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="qty">'+safe(s.qty)+'</span><button class="icon-btn" onclick="editStock(\''+s.id+'\')">✎</button><button class="icon-btn" onclick="deleteStock(\''+s.id+'\')">🗑</button></div></div>').join('');
+}
+function renderFinance(){
+ const t=totals();fTotal.textContent=money(t.total);fReceived.textContent=money(t.paid);fPending.textContent=money(t.pending);
+ const os=validOrders().filter(o=>Number(o.total)>Number(o.paid));pendingRows.innerHTML=os.map(o=>'<tr><td>#'+safe(o.code)+'</td><td><b>'+safe(o.client)+'</b></td><td>'+money(o.total)+'</td><td>'+money(o.paid)+'</td><td><b>'+money(Number(o.total)-Number(o.paid))+'</b></td><td>'+badge(o.status)+'</td></tr>').join('');pendingEmpty.style.display=os.length?'none':'block';
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function newOrder(){orderModalTitle.textContent='Novo pedido';orderForm.reset();oId.value='';oQty.value=1;oPaid.value=0;oStatus.value='Confirmado';openModal('orderModal');setTimeout(()=>oClient.focus(),80)}
+function editOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;orderModalTitle.textContent='Editar pedido #'+o.code;oId.value=o.id;oClient.value=o.client;oPhone.value=o.phone||'';oProduct.value=o.product;oQty.value=o.qty||1;oStatus.value=o.status;oTotal.value=o.total;oPaid.value=o.paid||0;oDue.value=o.due||'';oPayMethod.value=o.payMethod||'PIX';oNotes.value=o.notes||'';openModal('orderModal')}
+function deleteOrder(id){const o=state.orders.find(x=>x.id===id);if(confirm('Excluir o pedido #'+o.code+' de '+o.client+'?')){state.orders=state.orders.filter(x=>x.id!==id);persist()}}
+function newStockItem(){stockModalTitle.textContent='Adicionar item';stockForm.reset();sId.value='';sQty.value=0;openModal('stockModal')}
+function editStock(id){const s=state.stock.find(x=>x.id===id);if(!s)return;stockModalTitle.textContent='Editar item';sId.value=s.id;sName.value=s.name;sCategory.value=s.category;sQty.value=s.qty;openModal('stockModal')}
+function deleteStock(id){if(confirm('Excluir este item do estoque?')){state.stock=state.stock.filter(x=>x.id!==id);persist()}}
+orderForm.addEventListener('submit',e=>{e.preventDefault();const total=Number(oTotal.value||0),paid=Number(oPaid.value||0);if(paid>total&&!confirm('O valor recebido é maior que o total do pedido. Salvar assim mesmo?'))return;const id=oId.value||crypto.randomUUID();const old=state.orders.find(x=>x.id===id);const data={id,code:old?.code||nextOrder(),client:oClient.value.trim(),phone:oPhone.value.trim(),product:oProduct.value.trim(),qty:Number(oQty.value||1),status:oStatus.value,total,paid,due:oDue.value,payMethod:oPayMethod.value,notes:oNotes.value.trim(),created:old?.created||new Date().toISOString(),updated:new Date().toISOString()};if(old)Object.assign(old,data);else state.orders.push(data);closeModal('orderModal');persist()});
+stockForm.addEventListener('submit',e=>{e.preventDefault();const id=sId.value||crypto.randomUUID(),old=state.stock.find(x=>x.id===id),data={id,name:sName.value.trim(),category:sCategory.value,qty:Number(sQty.value||0)};if(old)Object.assign(old,data);else state.stock.push(data);closeModal('stockModal');persist()});
+function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===page));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+[newOrderSide,newOrderTop,fab].forEach(b=>b.addEventListener('click',newOrder));newStock.addEventListener('click',newStockItem);search.addEventListener('input',renderOrders);
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+backupBtn.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup-fina-estampa-'+todayISO()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+restoreInput.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text()),d=obj.data||obj;if(!Array.isArray(d.orders)||!Array.isArray(d.stock))throw new Error();if(confirm('Importar este backup e substituir os dados atuais?')){state=d;persist();alert('Backup importado com sucesso.')}}catch{alert('Esse arquivo não parece ser um backup válido.')}e.target.value=''});
+csvBtn.addEventListener('click',()=>{const head=['Pedido','Cliente','Telefone','Produto','Quantidade','Valor total','Recebido','Saldo','Status','Prazo','Pagamento','Observações'];const rows=state.orders.map(o=>[o.code,o.client,o.phone,o.product,o.qty,o.total,o.paid,Math.max(Number(o.total)-Number(o.paid),0),o.status,o.due,o.payMethod,o.notes]);const esc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[head,...rows].map(r=>r.map(esc).join(';')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pedidos-fina-estampa-'+todayISO()+'.csv';a.click()});
+clearBtn.addEventListener('click',()=>{if(confirm('Tem certeza? Isso apaga todos os pedidos e o estoque salvos neste navegador. Faça um backup antes.')){if(confirm('Confirma novamente que deseja apagar tudo?')){state={orders:[],stock:[]};persist()}}});
+today.textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
+if(window.innerWidth<=980)document.querySelector('.mobile-nav').style.display='grid';window.addEventListener('resize',()=>document.querySelector('.mobile-nav').style.display=window.innerWidth<=980?'grid':'none');
+renderAll();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/painel/sw.js').catch(()=>{});
+</script>
+</body>
+</html>
