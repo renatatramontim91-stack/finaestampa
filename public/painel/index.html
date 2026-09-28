@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#111827">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="/painel/manifest.webmanifest">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <title>Painel Fina Estampa</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--ink:#182033;--muted:#6f7788;--line:#e9edf5;--nav:#111827;--pink:#f22f7d;--pink2:#ff5a9d;--green:#19b36b;--blue:#2f80ed;--amber:#f0a51a;--violet:#7b61ff;--red:#e34b4b;--shadow:0 10px 30px rgba(16,24,40,.08)}
@@ -37,14 +38,18 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
   <div class="login-box">
     <div class="login-logo">FE</div>
     <h1>Fina Estampa</h1>
-    <p id="loginText">Crie um PIN para proteger o painel neste dispositivo.</p>
+    <p id="loginText">Entre com teu e-mail e senha para acessar o painel em qualquer aparelho.</p>
     <form id="loginForm">
-      <input class="pin-input" id="pinInput" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="one-time-code" placeholder="••••" aria-label="PIN">
-      <input class="pin-input" id="pinConfirm" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" aria-label="Confirmar PIN" style="display:none">
+      <input class="pin-input" id="emailInput" type="email" autocomplete="email" placeholder="seuemail@exemplo.com" style="letter-spacing:0;font-size:16px;text-align:left" required>
+      <input class="pin-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="Senha" style="letter-spacing:0;font-size:16px;text-align:left" required>
       <div class="login-error" id="loginError"></div>
-      <button class="primary" id="loginBtn" type="submit" style="width:100%;padding:13px">Criar acesso</button>
+      <button class="primary" id="loginBtn" type="submit" style="width:100%;padding:13px">Entrar</button>
     </form>
-    <p class="login-help">Use de 4 a 8 números e guarde esse PIN. Ele protege o painel salvo neste navegador.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+      <button class="secondary" id="createAccountBtn" type="button">Criar minha conta</button>
+      <button class="secondary" id="forgotBtn" type="button">Esqueci a senha</button>
+    </div>
+    <p class="login-help">Teus pedidos ficam sincronizados na nuvem e aparecem no celular e no computador com este mesmo login.</p>
   </div>
 </div>
 <div class="app">
@@ -185,46 +190,87 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
 </div>
 
 <script>
-const AUTH_KEY='finaEstampaPainelPinV1';
-const SESSION_KEY='finaEstampaPainelUnlockedV1';
-async function hashPin(pin){
-  const data=new TextEncoder().encode('fina-estampa|'+pin);
-  const digest=await crypto.subtle.digest('SHA-256',data);
-  return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function authMode(){
-  const hasPin=!!localStorage.getItem(AUTH_KEY);
-  loginText.textContent=hasPin?'Digite teu PIN para entrar no painel.':'Crie um PIN para proteger o painel neste dispositivo.';
-  pinConfirm.style.display=hasPin?'none':'block';
-  loginBtn.textContent=hasPin?'Entrar':'Criar acesso';
-  loginError.textContent='';
-  pinInput.value='';pinConfirm.value='';
-  setTimeout(()=>pinInput.focus(),80);
+const SUPABASE_URL='https://qmpjxyemgvojekhsgzpy.supabase.co';
+const SUPABASE_KEY='sb_publishable_zPXJpwPvFU9Yjx3Kmorfeg_i8eIutM1';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let currentUser=null;
+
+function showLogin(message=''){
+  document.body.classList.add('locked');
+  loginScreen.style.display='grid';
+  loginError.textContent=message;
 }
 function unlockPanel(){
   document.body.classList.remove('locked');
   loginScreen.style.display='none';
-  sessionStorage.setItem(SESSION_KEY,'1');
 }
-function lockPanel(){
-  sessionStorage.removeItem(SESSION_KEY);
-  document.body.classList.add('locked');
-  loginScreen.style.display='grid';
-  authMode();
+async function syncFromCloud(){
+  if(!currentUser) return;
+  const [{data:orders,error:oe},{data:stock,error:se}] = await Promise.all([
+    db.from('orders').select('*').order('created_at',{ascending:false}),
+    db.from('stock').select('*').order('name',{ascending:true})
+  ]);
+  if(oe||se){console.error(oe||se);return}
+  state.orders=(orders||[]).map(o=>({
+    id:o.id,code:o.code,client:o.client,phone:o.phone||'',product:o.product,qty:o.qty,status:o.status,
+    total:Number(o.total||0),paid:Number(o.paid||0),due:o.due||'',payMethod:o.pay_method||'',notes:o.notes||'',
+    created:o.created_at,updated:o.updated_at
+  }));
+  state.stock=(stock||[]).map(s=>({id:s.id,name:s.name,category:s.category||'',qty:s.qty}));
+  localStorage.setItem(KEY,JSON.stringify(state));
+  renderAll();
+}
+async function migrateLocalIfNeeded(){
+  if(!currentUser) return;
+  const local=load();
+  if(!local.orders.length && !local.stock.length) return;
+  const {count:orderCount}=await db.from('orders').select('*',{count:'exact',head:true});
+  const {count:stockCount}=await db.from('stock').select('*',{count:'exact',head:true});
+  if((orderCount||0)+(stockCount||0)>0) return;
+  if(!confirm('Encontrei dados salvos neste aparelho. Deseja enviar esses pedidos e estoque para tua conta online agora?')) return;
+  if(local.orders.length){
+    const rows=local.orders.map(o=>({user_id:currentUser.id,code:o.code,client:o.client,phone:o.phone||null,product:o.product,qty:Number(o.qty||1),status:o.status||'Confirmado',total:Number(o.total||0),paid:Number(o.paid||0),due:o.due||null,pay_method:o.payMethod||null,notes:o.notes||null,created_at:o.created||new Date().toISOString(),updated_at:o.updated||new Date().toISOString()}));
+    const {error}=await db.from('orders').insert(rows); if(error) console.error(error);
+  }
+  if(local.stock.length){
+    const rows=local.stock.map(s=>({user_id:currentUser.id,name:s.name,category:s.category||null,qty:Number(s.qty||0)}));
+    const {error}=await db.from('stock').insert(rows); if(error) console.error(error);
+  }
+}
+async function afterLogin(user){
+  currentUser=user;
+  unlockPanel();
+  await migrateLocalIfNeeded();
+  await syncFromCloud();
 }
 loginForm.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const pin=pinInput.value.trim();
-  if(!/^\d{4,8}$/.test(pin)){loginError.textContent='Use um PIN de 4 a 8 números.';return}
-  const saved=localStorage.getItem(AUTH_KEY);
-  if(!saved){
-    if(pinConfirm.value.trim()!==pin){loginError.textContent='Os dois PINs não são iguais.';return}
-    localStorage.setItem(AUTH_KEY,await hashPin(pin));
-    unlockPanel();return;
-  }
-  if(await hashPin(pin)===saved){unlockPanel()}else{loginError.textContent='PIN incorreto. Tente novamente.';pinInput.select()}
+  e.preventDefault(); loginError.textContent='Entrando...';
+  const email=emailInput.value.trim(),password=passwordInput.value;
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error){loginError.textContent='Não foi possível entrar. Confira e-mail e senha.';return}
+  loginError.textContent=''; await afterLogin(data.user);
 });
-if(sessionStorage.getItem(SESSION_KEY)==='1' && localStorage.getItem(AUTH_KEY)){unlockPanel()}else{authMode()}
+createAccountBtn.addEventListener('click',async()=>{
+  const email=emailInput.value.trim(),password=passwordInput.value;
+  if(!email||password.length<6){loginError.textContent='Digite teu e-mail e uma senha com pelo menos 6 caracteres.';return}
+  loginError.textContent='Criando conta...';
+  const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:'https://www.finaestampas.com.br/painel/'}});
+  if(error){loginError.textContent=error.message;return}
+  if(data.session){await afterLogin(data.user)}
+  else loginError.textContent='Conta criada. Confira teu e-mail e toque no link de confirmação. Depois volte aqui para entrar.';
+});
+forgotBtn.addEventListener('click',async()=>{
+  const email=emailInput.value.trim();
+  if(!email){loginError.textContent='Digite teu e-mail primeiro.';return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:'https://www.finaestampas.com.br/painel/'});
+  loginError.textContent=error?error.message:'Enviei um link de recuperação para teu e-mail.';
+});
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY' && session){
+    const np=prompt('Digite tua nova senha (mínimo 6 caracteres):');
+    if(np&&np.length>=6) db.auth.updateUser({password:np}).then(({error})=>alert(error?error.message:'Senha alterada com sucesso.'));
+  }
+});
 const KEY='finaEstampaPainelV1';
 const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0));
 const safe=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -271,12 +317,12 @@ function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function newOrder(){orderModalTitle.textContent='Novo pedido';orderForm.reset();oId.value='';oQty.value=1;oPaid.value=0;oStatus.value='Confirmado';openModal('orderModal');setTimeout(()=>oClient.focus(),80)}
 function editOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;orderModalTitle.textContent='Editar pedido #'+o.code;oId.value=o.id;oClient.value=o.client;oPhone.value=o.phone||'';oProduct.value=o.product;oQty.value=o.qty||1;oStatus.value=o.status;oTotal.value=o.total;oPaid.value=o.paid||0;oDue.value=o.due||'';oPayMethod.value=o.payMethod||'PIX';oNotes.value=o.notes||'';openModal('orderModal')}
-function deleteOrder(id){const o=state.orders.find(x=>x.id===id);if(confirm('Excluir o pedido #'+o.code+' de '+o.client+'?')){state.orders=state.orders.filter(x=>x.id!==id);persist()}}
+async function deleteOrder(id){const o=state.orders.find(x=>x.id===id);if(confirm('Excluir o pedido #'+o.code+' de '+o.client+'?')){const {error}=await db.from('orders').delete().eq('id',id);if(error){alert(error.message);return}await syncFromCloud()}}
 function newStockItem(){stockModalTitle.textContent='Adicionar item';stockForm.reset();sId.value='';sQty.value=0;openModal('stockModal')}
 function editStock(id){const s=state.stock.find(x=>x.id===id);if(!s)return;stockModalTitle.textContent='Editar item';sId.value=s.id;sName.value=s.name;sCategory.value=s.category;sQty.value=s.qty;openModal('stockModal')}
-function deleteStock(id){if(confirm('Excluir este item do estoque?')){state.stock=state.stock.filter(x=>x.id!==id);persist()}}
-orderForm.addEventListener('submit',e=>{e.preventDefault();const total=Number(oTotal.value||0),paid=Number(oPaid.value||0);if(paid>total&&!confirm('O valor recebido é maior que o total do pedido. Salvar assim mesmo?'))return;const id=oId.value||crypto.randomUUID();const old=state.orders.find(x=>x.id===id);const data={id,code:old?.code||nextOrder(),client:oClient.value.trim(),phone:oPhone.value.trim(),product:oProduct.value.trim(),qty:Number(oQty.value||1),status:oStatus.value,total,paid,due:oDue.value,payMethod:oPayMethod.value,notes:oNotes.value.trim(),created:old?.created||new Date().toISOString(),updated:new Date().toISOString()};if(old)Object.assign(old,data);else state.orders.push(data);closeModal('orderModal');persist()});
-stockForm.addEventListener('submit',e=>{e.preventDefault();const id=sId.value||crypto.randomUUID(),old=state.stock.find(x=>x.id===id),data={id,name:sName.value.trim(),category:sCategory.value,qty:Number(sQty.value||0)};if(old)Object.assign(old,data);else state.stock.push(data);closeModal('stockModal');persist()});
+async function deleteStock(id){if(confirm('Excluir este item do estoque?')){const {error}=await db.from('stock').delete().eq('id',id);if(error){alert(error.message);return}await syncFromCloud()}}
+orderForm.addEventListener('submit',async e=>{e.preventDefault();const total=Number(oTotal.value||0),paid=Number(oPaid.value||0);if(paid>total&&!confirm('O valor recebido é maior que o total do pedido. Salvar assim mesmo?'))return;const id=oId.value;const old=state.orders.find(x=>x.id===id);const payload={user_id:currentUser.id,code:old?.code||nextOrder(),client:oClient.value.trim(),phone:oPhone.value.trim()||null,product:oProduct.value.trim(),qty:Number(oQty.value||1),status:oStatus.value,total,paid,due:oDue.value||null,pay_method:oPayMethod.value||null,notes:oNotes.value.trim()||null,updated_at:new Date().toISOString()};let error;if(old){({error}=await db.from('orders').update(payload).eq('id',id))}else{({error}=await db.from('orders').insert(payload))}if(error){alert('Não consegui salvar o pedido: '+error.message);return}closeModal('orderModal');await syncFromCloud()});
+stockForm.addEventListener('submit',async e=>{e.preventDefault();const id=sId.value,old=state.stock.find(x=>x.id===id),payload={user_id:currentUser.id,name:sName.value.trim(),category:sCategory.value||null,qty:Number(sQty.value||0),updated_at:new Date().toISOString()};let error;if(old){({error}=await db.from('stock').update(payload).eq('id',id))}else{({error}=await db.from('stock').insert(payload))}if(error){alert('Não consegui salvar o estoque: '+error.message);return}closeModal('stockModal');await syncFromCloud()});
 function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===page));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
@@ -286,10 +332,11 @@ backupBtn.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({ver
 restoreInput.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text()),d=obj.data||obj;if(!Array.isArray(d.orders)||!Array.isArray(d.stock))throw new Error();if(confirm('Importar este backup e substituir os dados atuais?')){state=d;persist();alert('Backup importado com sucesso.')}}catch{alert('Esse arquivo não parece ser um backup válido.')}e.target.value=''});
 csvBtn.addEventListener('click',()=>{const head=['Pedido','Cliente','Telefone','Produto','Quantidade','Valor total','Recebido','Saldo','Status','Prazo','Pagamento','Observações'];const rows=state.orders.map(o=>[o.code,o.client,o.phone,o.product,o.qty,o.total,o.paid,Math.max(Number(o.total)-Number(o.paid),0),o.status,o.due,o.payMethod,o.notes]);const esc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[head,...rows].map(r=>r.map(esc).join(';')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pedidos-fina-estampa-'+todayISO()+'.csv';a.click()});
 clearBtn.addEventListener('click',()=>{if(confirm('Tem certeza? Isso apaga todos os pedidos e o estoque salvos neste navegador. Faça um backup antes.')){if(confirm('Confirma novamente que deseja apagar tudo?')){state={orders:[],stock:[]};persist()}}});
-[logoutBtn,logoutMobile].forEach(b=>b.addEventListener('click',lockPanel));
+[logoutBtn,logoutMobile].forEach(b=>b.addEventListener('click',async()=>{await db.auth.signOut();currentUser=null;showLogin('Você saiu da conta.')}));
 today.textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
 if(window.innerWidth<=980)document.querySelector('.mobile-nav').style.display='grid';window.addEventListener('resize',()=>document.querySelector('.mobile-nav').style.display=window.innerWidth<=980?'grid':'none');
 renderAll();
+(async()=>{const {data:{session}}=await db.auth.getSession();if(session?.user)await afterLogin(session.user);else showLogin('');})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/painel/sw.js').catch(()=>{});
 </script>
 </body>
