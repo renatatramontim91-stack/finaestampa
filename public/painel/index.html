@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#111827">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="/painel/manifest.webmanifest">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <title>Painel Fina Estampa</title>
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--ink:#182033;--muted:#6f7788;--line:#e9edf5;--nav:#111827;--pink:#f22f7d;--pink2:#ff5a9d;--green:#19b36b;--blue:#2f80ed;--amber:#f0a51a;--violet:#7b61ff;--red:#e34b4b;--shadow:0 10px 30px rgba(16,24,40,.08)}
@@ -192,7 +191,112 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
 <script>
 const SUPABASE_URL='https://qmpjxyemgvojekhsgzpy.supabase.co';
 const SUPABASE_KEY='sb_publishable_zPXJpwPvFU9Yjx3Kmorfeg_i8eIutM1';
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+function createMiniSupabase(url,key){
+  const SESSION_KEY='feSupabaseSessionV1';
+  const listeners=[];
+  const errorObj=async r=>{let j={};try{j=await r.json()}catch{};return {message:j.msg||j.message||j.error_description||j.error||('Erro '+r.status)}};
+  const decodeJwt=t=>{try{const p=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(decodeURIComponent(escape(atob(p))))}catch{return {}}};
+  const saveSession=s=>{if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY)};
+  const loadSession=()=>{try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}};
+  const normalizeSession=(j)=>{
+    if(!j?.access_token)return null;
+    const p=decodeJwt(j.access_token);
+    return {access_token:j.access_token,refresh_token:j.refresh_token||'',expires_in:j.expires_in||3600,expires_at:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),user:j.user||{id:p.sub,email:p.email}};
+  };
+  const emit=(event,session)=>listeners.forEach(fn=>{try{fn(event,session)}catch{}});
+  const refresh=async()=>{
+    const s=loadSession(); if(!s?.refresh_token)return null;
+    const r=await fetch(url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+    if(!r.ok){saveSession(null);return null}
+    const ns=normalizeSession(await r.json());saveSession(ns);emit('TOKEN_REFRESHED',ns);return ns;
+  };
+  const session=async()=>{
+    let s=loadSession();
+    if(location.hash.includes('access_token=')){
+      const h=new URLSearchParams(location.hash.slice(1));
+      const access_token=h.get('access_token'),refresh_token=h.get('refresh_token')||'';
+      if(access_token){
+        const p=decodeJwt(access_token);
+        s={access_token,refresh_token,expires_in:Number(h.get('expires_in')||3600),expires_at:Math.floor(Date.now()/1000)+Number(h.get('expires_in')||3600),user:{id:p.sub,email:p.email}};
+        saveSession(s);
+        const type=h.get('type');
+        history.replaceState(null,'',location.pathname+location.search);
+        setTimeout(()=>emit(type==='recovery'?'PASSWORD_RECOVERY':'SIGNED_IN',s),0);
+      }
+    }
+    if(s && s.expires_at && s.expires_at-Math.floor(Date.now()/1000)<60)s=await refresh();
+    return s;
+  };
+  const authFetch=async(path,options={})=>{
+    const r=await fetch(url+'/auth/v1'+path,{...options,headers:{apikey:key,'Content-Type':'application/json',...(options.headers||{})}});
+    if(!r.ok)return {data:null,error:await errorObj(r)};
+    let j={};try{j=await r.json()}catch{}
+    return {data:j,error:null};
+  };
+  const auth={
+    async signInWithPassword({email,password}){
+      const x=await authFetch('/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});
+      if(x.error)return {data:{user:null,session:null},error:x.error};
+      const s=normalizeSession(x.data);saveSession(s);emit('SIGNED_IN',s);return {data:{user:s.user,session:s},error:null};
+    },
+    async signUp({email,password}){
+      const x=await authFetch('/signup',{method:'POST',body:JSON.stringify({email,password})});
+      if(x.error)return {data:{user:null,session:null},error:x.error};
+      const s=normalizeSession(x.data);
+      if(s){saveSession(s);emit('SIGNED_IN',s)}
+      return {data:{user:x.data.user||s?.user||null,session:s},error:null};
+    },
+    async getSession(){const s=await session();return {data:{session:s},error:null}},
+    async signOut(){
+      const s=loadSession();
+      if(s?.access_token)await authFetch('/logout',{method:'POST',headers:{Authorization:'Bearer '+s.access_token}});
+      saveSession(null);emit('SIGNED_OUT',null);return {error:null};
+    },
+    async resetPasswordForEmail(email,{redirectTo}={}){
+      const q=redirectTo?'?redirect_to='+encodeURIComponent(redirectTo):'';
+      const x=await authFetch('/recover'+q,{method:'POST',body:JSON.stringify({email})});return {data:x.data,error:x.error};
+    },
+    async updateUser(payload){
+      let s=await session();if(!s)return {data:null,error:{message:'Sessão expirada. Entre novamente.'}};
+      const x=await authFetch('/user',{method:'PUT',headers:{Authorization:'Bearer '+s.access_token},body:JSON.stringify(payload)});
+      return {data:x.data,error:x.error};
+    },
+    onAuthStateChange(fn){listeners.push(fn);return {data:{subscription:{unsubscribe(){const i=listeners.indexOf(fn);if(i>=0)listeners.splice(i,1)}}}}}
+  };
+  function from(table){
+    let op='select',body=null,filters=[],orderBy=null,selectCols='*',head=false,countMode=null;
+    const b={
+      select(cols='*',opts={}){op='select';selectCols=cols;head=!!opts.head;countMode=opts.count||null;return b},
+      insert(v){op='insert';body=v;return b},
+      update(v){op='update';body=v;return b},
+      delete(){op='delete';return b},
+      eq(k,v){filters.push([k,'eq',v]);return b},
+      order(k,{ascending=true}={}){orderBy=[k,ascending?'asc':'desc'];return b},
+      then(resolve,reject){run().then(resolve,reject)}
+    };
+    async function run(){
+      let s=await session();if(!s)return {data:null,error:{message:'Sessão expirada. Entre novamente.'},count:null};
+      const qs=new URLSearchParams();
+      if(op==='select')qs.set('select',selectCols);
+      filters.forEach(([k,cmp,v])=>qs.set(k,cmp+'.'+v));
+      if(orderBy)qs.set('order',orderBy[0]+'.'+orderBy[1]);
+      const method=op==='select'?(head?'HEAD':'GET'):op==='insert'?'POST':op==='update'?'PATCH':'DELETE';
+      const headers={apikey:key,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'};
+      if(countMode)headers.Prefer='count='+countMode;
+      if(op==='insert'||op==='update')headers.Prefer=(headers.Prefer?headers.Prefer+',':'')+'return=minimal';
+      let r=await fetch(url+'/rest/v1/'+table+(qs.toString()?'?'+qs.toString():''),{method,headers,body:(op==='insert'||op==='update')?JSON.stringify(body):undefined});
+      if(r.status===401){s=await refresh();if(s){headers.Authorization='Bearer '+s.access_token;r=await fetch(url+'/rest/v1/'+table+(qs.toString()?'?'+qs.toString():''),{method,headers,body:(op==='insert'||op==='update')?JSON.stringify(body):undefined})}}
+      if(!r.ok)return {data:null,error:await errorObj(r),count:null};
+      let data=null;if(method==='GET'){try{data=await r.json()}catch{data=[]}}
+      let count=null;const cr=r.headers.get('content-range');if(cr&&cr.includes('/')){const n=cr.split('/').pop();count=n==='*'?null:Number(n)}
+      return {data,error:null,count};
+    }
+    return b;
+  }
+  return {auth,from};
+}
+const db=createMiniSupabase(SUPABASE_URL,SUPABASE_KEY);
 let currentUser=null;
 
 function showLogin(message=''){
