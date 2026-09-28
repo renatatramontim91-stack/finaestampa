@@ -1,5 +1,26 @@
 {
   "framework": null,
   "buildCommand": "cp index.html site-extra.css site-extra.js site-showcase.css site-showcase.js robots.txt sitemap.xml public/",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/painel",
+      "destination": "/painel/index.html"
+    },
+    {
+      "source": "/painel/",
+      "destination": "/painel/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/painel/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    }
+  ]
 }
