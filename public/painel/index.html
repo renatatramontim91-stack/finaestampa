@@ -24,11 +24,29 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
 .modal{position:fixed;inset:0;background:rgba(13,20,34,.52);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modal-card{background:#fff;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:18px;box-shadow:0 22px 70px rgba(0,0,0,.25)}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#f2f4f8;border-radius:9px;width:34px;height:34px;cursor:pointer}.form{padding:20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:800;color:#596174}.field input,.field select{border:1px solid #dfe4ec;border-radius:10px;padding:11px 12px;outline:none}.field input:focus,.field select:focus{border-color:#f45a9c;box-shadow:0 0 0 3px #ffe8f2}.modal-foot{padding:0 20px 20px;display:flex;justify-content:flex-end;gap:10px}
 .notice{padding:13px 15px;background:#fff7df;border:1px solid #f4dd92;border-radius:12px;color:#795d12;font-size:12px;margin-bottom:16px}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.big-number{font-size:28px;font-weight:900}.muted{color:var(--muted)}.stock-line{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line)}.stock-line:last-child{border-bottom:0}.qty{font-weight:900;font-size:19px}
 .mobile-head{display:none}.fab{display:none}
+.login-screen{position:fixed;inset:0;z-index:100;background:linear-gradient(145deg,#0b1220,#182033);display:grid;place-items:center;padding:20px}
+.login-box{width:min(420px,100%);background:#fff;border-radius:22px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.38);text-align:center}
+.login-logo{width:68px;height:68px;border:3px solid var(--pink);border-radius:18px;display:grid;place-items:center;margin:0 auto 14px;color:var(--pink);font-weight:900;font-size:22px}
+.login-box h1{margin:0;font-family:Georgia,serif;font-style:italic;font-size:30px}.login-box p{color:var(--muted);font-size:14px;line-height:1.45}.pin-input{width:100%;padding:14px 15px;border:1px solid #dfe4ec;border-radius:12px;text-align:center;font-size:24px;letter-spacing:8px;outline:none;margin:8px 0}.pin-input:focus{border-color:#f45a9c;box-shadow:0 0 0 3px #ffe8f2}.login-error{min-height:20px;color:#b52e2e;font-size:12px;margin-top:8px}.login-help{font-size:11px!important;margin-top:14px!important}.locked .app,.locked .mobile-nav,.locked .fab{display:none!important}.logout{border:1px solid var(--line);background:#fff;color:#596174;border-radius:9px;padding:7px 10px;cursor:pointer;font-size:12px;font-weight:700}
 @media(max-width:980px){.app{grid-template-columns:1fr}.side{display:none}.main{padding:14px 12px 90px}.mobile-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.mobile-head b{font-family:Georgia,serif;font-style:italic;font-size:22px}.top{gap:8px}.user{display:none}.row-head{align-items:flex-start}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.mobile-nav{position:fixed;z-index:30;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px calc(7px + env(safe-area-inset-bottom));box-shadow:0 -6px 25px rgba(0,0,0,.08)}.mobile-nav button{border:0;background:none;font-size:10px;color:#596174;padding:4px 2px}.mobile-nav button.active{color:var(--pink);font-weight:800}.mobile-nav i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}.fab{display:grid;position:fixed;right:18px;bottom:76px;width:52px;height:52px;border-radius:50%;border:0;background:var(--pink);color:white;place-items:center;font-size:27px;box-shadow:0 10px 25px rgba(242,47,125,.35);z-index:31}.form{grid-template-columns:1fr}.field.full{grid-column:auto}}
 @media(max-width:560px){.cards{grid-template-columns:1fr 1fr}.card .value{font-size:20px}.kpis{grid-template-columns:1fr}.hello h1{font-size:23px}.search input{font-size:14px}}
 </style>
 </head>
-<body>
+<body class="locked">
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">FE</div>
+    <h1>Fina Estampa</h1>
+    <p id="loginText">Crie um PIN para proteger o painel neste dispositivo.</p>
+    <form id="loginForm">
+      <input class="pin-input" id="pinInput" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="one-time-code" placeholder="••••" aria-label="PIN">
+      <input class="pin-input" id="pinConfirm" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" aria-label="Confirmar PIN" style="display:none">
+      <div class="login-error" id="loginError"></div>
+      <button class="primary" id="loginBtn" type="submit" style="width:100%;padding:13px">Criar acesso</button>
+    </form>
+    <p class="login-help">Use de 4 a 8 números e guarde esse PIN. Ele protege o painel salvo neste navegador.</p>
+  </div>
+</div>
 <div class="app">
 <aside class="side">
   <div class="brand"><div class="mark">FE</div><div><b>Fina Estampa</b><small>PRODUTOS PERSONALIZADOS</small></div></div>
@@ -45,10 +63,10 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
 </aside>
 
 <main class="main">
-  <div class="mobile-head"><b>Fina Estampa</b><span class="muted">Painel</span></div>
+  <div class="mobile-head"><b>Fina Estampa</b><button class="logout" id="logoutMobile">Sair</button></div>
   <div class="top">
     <div class="search"><span>⌕</span><input id="search" placeholder="Buscar pedido, cliente ou produto..."></div>
-    <div class="user"><div class="avatar">FE</div><div><b>Fina Estampa</b><small style="display:block;color:#7b8493">Administrador</small></div></div>
+    <div class="user"><div class="avatar">FE</div><div><b>Fina Estampa</b><small style="display:block;color:#7b8493">Administrador</small></div><button class="logout" id="logoutBtn">Sair</button></div>
   </div>
 
   <section id="inicio" class="page active">
@@ -167,6 +185,46 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
 </div>
 
 <script>
+const AUTH_KEY='finaEstampaPainelPinV1';
+const SESSION_KEY='finaEstampaPainelUnlockedV1';
+async function hashPin(pin){
+  const data=new TextEncoder().encode('fina-estampa|'+pin);
+  const digest=await crypto.subtle.digest('SHA-256',data);
+  return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function authMode(){
+  const hasPin=!!localStorage.getItem(AUTH_KEY);
+  loginText.textContent=hasPin?'Digite teu PIN para entrar no painel.':'Crie um PIN para proteger o painel neste dispositivo.';
+  pinConfirm.style.display=hasPin?'none':'block';
+  loginBtn.textContent=hasPin?'Entrar':'Criar acesso';
+  loginError.textContent='';
+  pinInput.value='';pinConfirm.value='';
+  setTimeout(()=>pinInput.focus(),80);
+}
+function unlockPanel(){
+  document.body.classList.remove('locked');
+  loginScreen.style.display='none';
+  sessionStorage.setItem(SESSION_KEY,'1');
+}
+function lockPanel(){
+  sessionStorage.removeItem(SESSION_KEY);
+  document.body.classList.add('locked');
+  loginScreen.style.display='grid';
+  authMode();
+}
+loginForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const pin=pinInput.value.trim();
+  if(!/^\d{4,8}$/.test(pin)){loginError.textContent='Use um PIN de 4 a 8 números.';return}
+  const saved=localStorage.getItem(AUTH_KEY);
+  if(!saved){
+    if(pinConfirm.value.trim()!==pin){loginError.textContent='Os dois PINs não são iguais.';return}
+    localStorage.setItem(AUTH_KEY,await hashPin(pin));
+    unlockPanel();return;
+  }
+  if(await hashPin(pin)===saved){unlockPanel()}else{loginError.textContent='PIN incorreto. Tente novamente.';pinInput.select()}
+});
+if(sessionStorage.getItem(SESSION_KEY)==='1' && localStorage.getItem(AUTH_KEY)){unlockPanel()}else{authMode()}
 const KEY='finaEstampaPainelV1';
 const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0));
 const safe=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -228,6 +286,7 @@ backupBtn.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({ver
 restoreInput.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text()),d=obj.data||obj;if(!Array.isArray(d.orders)||!Array.isArray(d.stock))throw new Error();if(confirm('Importar este backup e substituir os dados atuais?')){state=d;persist();alert('Backup importado com sucesso.')}}catch{alert('Esse arquivo não parece ser um backup válido.')}e.target.value=''});
 csvBtn.addEventListener('click',()=>{const head=['Pedido','Cliente','Telefone','Produto','Quantidade','Valor total','Recebido','Saldo','Status','Prazo','Pagamento','Observações'];const rows=state.orders.map(o=>[o.code,o.client,o.phone,o.product,o.qty,o.total,o.paid,Math.max(Number(o.total)-Number(o.paid),0),o.status,o.due,o.payMethod,o.notes]);const esc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[head,...rows].map(r=>r.map(esc).join(';')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pedidos-fina-estampa-'+todayISO()+'.csv';a.click()});
 clearBtn.addEventListener('click',()=>{if(confirm('Tem certeza? Isso apaga todos os pedidos e o estoque salvos neste navegador. Faça um backup antes.')){if(confirm('Confirma novamente que deseja apagar tudo?')){state={orders:[],stock:[]};persist()}}});
+[logoutBtn,logoutMobile].forEach(b=>b.addEventListener('click',lockPanel));
 today.textContent=new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
 if(window.innerWidth<=980)document.querySelector('.mobile-nav').style.display='grid';window.addEventListener('resize',()=>document.querySelector('.mobile-nav').style.display=window.innerWidth<=980?'grid':'none');
 renderAll();
