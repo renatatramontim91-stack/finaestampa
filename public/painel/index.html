@@ -108,8 +108,8 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
   </section>
 
   <section id="clientes" class="page">
-    <div class="row-head"><div class="hello"><h1>Clientes</h1><p>A lista é criada automaticamente pelos pedidos.</p></div></div>
-    <div class="panel"><div class="table-wrap"><table style="min-width:650px"><thead><tr><th>Cliente</th><th>Telefone</th><th>Pedidos</th><th>Total comprado</th><th>Último pedido</th></tr></thead><tbody id="clientRows"></tbody></table></div><div class="empty" id="clientsEmpty"><b>Nenhum cliente ainda</b>Ao cadastrar pedidos, os clientes aparecem automaticamente.</div></div>
+    <div class="row-head"><div class="hello"><h1>Clientes</h1><p>Cadastre clientes mesmo antes de existir um pedido.</p></div><button class="primary" id="newClient">＋ Novo cliente</button></div>
+    <div class="panel"><div class="table-wrap"><table style="min-width:760px"><thead><tr><th>Cliente</th><th>Telefone</th><th>Pedidos</th><th>Total comprado</th><th>Último pedido</th><th>Ações</th></tr></thead><tbody id="clientRows"></tbody></table></div><div class="empty" id="clientsEmpty"><b>Nenhum cliente cadastrado</b>Clique em “Novo cliente” para começar.</div></div>
   </section>
 
   <section id="estoque" class="page">
@@ -173,6 +173,20 @@ button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-templat
   </div>
 </div>
 
+<div class="modal" id="clientModal">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-head"><h3 id="clientModalTitle">Novo cliente</h3><button class="close" data-close="clientModal">✕</button></div>
+    <form id="clientForm">
+      <input type="hidden" id="cId">
+      <div class="form">
+        <div class="field full"><label>Nome do cliente *</label><input id="cName" required placeholder="Nome do cliente"></div>
+        <div class="field full"><label>WhatsApp / telefone</label><input id="cPhone" placeholder="(51) 99999-9999"></div>
+      </div>
+      <div class="modal-foot"><button type="button" class="secondary" data-close="clientModal">Cancelar</button><button class="primary" type="submit">Salvar cliente</button></div>
+    </form>
+  </div>
+</div>
+
 <div class="modal" id="stockModal">
   <div class="modal-card" style="max-width:520px">
     <div class="modal-head"><h3 id="stockModalTitle">Adicionar item</h3><button class="close" data-close="stockModal">✕</button></div>
@@ -222,6 +236,7 @@ const newOrderTop=document.getElementById('newOrderTop');
 const orderRows=document.getElementById('orderRows');
 const ordersEmpty=document.getElementById('ordersEmpty');
 const clientes=document.getElementById('clientes');
+const newClient=document.getElementById('newClient');
 const clientRows=document.getElementById('clientRows');
 const clientsEmpty=document.getElementById('clientsEmpty');
 const estoque=document.getElementById('estoque');
@@ -258,6 +273,12 @@ const oPaid=document.getElementById('oPaid');
 const oDue=document.getElementById('oDue');
 const oPayMethod=document.getElementById('oPayMethod');
 const oNotes=document.getElementById('oNotes');
+const clientModal=document.getElementById('clientModal');
+const clientModalTitle=document.getElementById('clientModalTitle');
+const clientForm=document.getElementById('clientForm');
+const cId=document.getElementById('cId');
+const cName=document.getElementById('cName');
+const cPhone=document.getElementById('cPhone');
 const stockModal=document.getElementById('stockModal');
 const stockModalTitle=document.getElementById('stockModalTitle');
 const stockForm=document.getElementById('stockForm');
@@ -487,11 +508,13 @@ function renderOrders(){
 }
 const normalizeName=v=>String(v||'').trim().replace(/\s+/g,' ').toLowerCase();
 function renderClients(){
- const map={};
- (state.clients||[]).forEach(c=>{const k=normalizeName(c.name);if(k)map[k]={name:c.name,phone:c.phone||'',count:0,total:0,lastPurchase:''}});
- state.orders.filter(o=>o.status!=='Cancelado').forEach(o=>{const k=normalizeName(o.client);if(!k)return;if(!map[k])map[k]={name:o.client,phone:o.phone||'',count:0,total:0,lastPurchase:''};map[k].count++;map[k].total+=Number(o.total||0);if(!map[k].lastPurchase||o.created>map[k].lastPurchase){map[k].lastPurchase=o.created;if(o.phone)map[k].phone=o.phone}});
- const cs=Object.values(map).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
- clientRows.innerHTML=cs.map(c=>'<tr><td><b>'+safe(c.name)+'</b></td><td>'+safe(c.phone||'—')+'</td><td>'+c.count+'</td><td>'+money(c.total)+'</td><td>'+(c.lastPurchase?dueText(c.lastPurchase.slice(0,10)):'—')+'</td></tr>').join('');
+ const cs=(state.clients||[]).map(c=>{
+   const related=state.orders.filter(o=>o.status!=='Cancelado'&&normalizeName(o.client)===normalizeName(c.name));
+   const total=related.reduce((s,o)=>s+Number(o.total||0),0);
+   const last=related.map(o=>o.created).filter(Boolean).sort().pop()||'';
+   return {...c,count:related.length,total,lastPurchase:last};
+ }).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+ clientRows.innerHTML=cs.map(c=>'<tr><td><b>'+safe(c.name)+'</b></td><td>'+safe(c.phone||'—')+'</td><td>'+c.count+'</td><td>'+money(c.total)+'</td><td>'+(c.lastPurchase?dueText(c.lastPurchase.slice(0,10)):'—')+'</td><td><div class="actions"><button class="icon-btn" onclick="editClient(\''+c.id+'\')">✎</button><button class="icon-btn" onclick="deleteClient(\''+c.id+'\')">🗑</button></div></td></tr>').join('');
  clientsEmpty.style.display=cs.length?'none':'block';
 }
 function refreshOrderOptions(){
@@ -526,18 +549,22 @@ function closeModal(id){document.getElementById(id).classList.remove('open')}
 function newOrder(){orderModalTitle.textContent='Novo pedido';orderForm.reset();oId.value='';oStockId.value='';oQty.value=1;oPaid.value=0;oStatus.value='Confirmado';stockHint.textContent='Escolha um item da lista para dar baixa automática no estoque.';openModal('orderModal');setTimeout(()=>oClient.focus(),80)}
 function editOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;orderModalTitle.textContent='Editar pedido #'+o.code;oId.value=o.id;oClient.value=o.client;oPhone.value=o.phone||'';oProduct.value=o.product;oStockId.value=o.stockItemId||'';oQty.value=o.qty||1;oStatus.value=o.status;oTotal.value=o.total;oPaid.value=o.paid||0;oDue.value=o.due||'';oPayMethod.value=o.payMethod||'PIX';oNotes.value=o.notes||'';showStockHintById(o.stockItemId||'');openModal('orderModal')}
 async function deleteOrder(id){const o=state.orders.find(x=>x.id===id);if(confirm('Excluir o pedido #'+o.code+' de '+o.client+'?')){const {error}=await db.from('orders').delete().eq('id',id);if(error){alert(error.message);return}await syncFromCloud()}}
+function newClientItem(){clientModalTitle.textContent='Novo cliente';clientForm.reset();cId.value='';openModal('clientModal');setTimeout(()=>cName.focus(),80)}
+function editClient(id){const c=state.clients.find(x=>x.id===id);if(!c)return;clientModalTitle.textContent='Editar cliente';cId.value=c.id;cName.value=c.name;cPhone.value=c.phone||'';openModal('clientModal')}
+async function deleteClient(id){const c=state.clients.find(x=>x.id===id);if(!c)return;if(confirm('Excluir o cadastro de '+c.name+'? Os pedidos antigos continuam salvos.')){const {error}=await db.from('clients').delete().eq('id',id);if(error){alert('Não consegui excluir o cliente: '+error.message);return}await syncFromCloud()}}
 function newStockItem(){stockModalTitle.textContent='Adicionar item';stockForm.reset();sId.value='';sQty.value=0;openModal('stockModal')}
 function editStock(id){const s=state.stock.find(x=>x.id===id);if(!s)return;stockModalTitle.textContent='Editar item';sId.value=s.id;sName.value=s.name;sCategory.value=s.category;sQty.value=s.qty;openModal('stockModal')}
 async function deleteStock(id){if(confirm('Excluir este item do estoque?')){const {error}=await db.from('stock').delete().eq('id',id);if(error){alert('Não consegui excluir. Se este produto já foi usado em algum pedido, deixe a quantidade em 0 em vez de apagar.');return}await syncFromCloud()}}
 orderForm.addEventListener('submit',async e=>{e.preventDefault();const total=Number(oTotal.value||0),paid=Number(oPaid.value||0);if(paid>total&&!confirm('O valor recebido é maior que o total do pedido. Salvar assim mesmo?'))return;applyClientSelection();const selectedStock=resolveStockSelection();const activeSale=!['Orçamento','Cancelado'].includes(oStatus.value);if(activeSale&&state.stock.length&&!selectedStock&&!confirm('Esse produto não foi localizado no estoque. Salvar o pedido sem baixar estoque?'))return;const id=oId.value;const old=state.orders.find(x=>x.id===id);const payload={user_id:currentUser.id,code:old?.code||nextOrder(),client:oClient.value.trim(),phone:oPhone.value.trim()||null,product:oProduct.value.trim(),stock_item_id:oStockId.value||null,qty:Number(oQty.value||1),status:oStatus.value,total,paid,due:oDue.value||null,pay_method:oPayMethod.value||null,notes:oNotes.value.trim()||null,updated_at:new Date().toISOString()};let error;if(old){({error}=await db.from('orders').update(payload).eq('id',id))}else{({error}=await db.from('orders').insert(payload))}if(error){const msg=String(error.message||'');alert(msg.toLowerCase().includes('estoque insuficiente')?'Estoque insuficiente para essa quantidade. Ajuste a quantidade do pedido ou o estoque.':'Não consegui salvar o pedido: '+msg);return}closeModal('orderModal');await syncFromCloud()});
+clientForm.addEventListener('submit',async e=>{e.preventDefault();const id=cId.value;const name=cName.value.trim();const phone=cPhone.value.trim()||null;if(!name)return;const payload={user_id:currentUser.id,name,phone,updated_at:new Date().toISOString()};let error;if(id){({error}=await db.from('clients').update(payload).eq('id',id))}else{({error}=await db.from('clients').insert(payload))}if(error){const msg=String(error.message||'');alert(msg.toLowerCase().includes('duplicate')||msg.toLowerCase().includes('unique')?'Esse cliente já está cadastrado.':'Não consegui salvar o cliente: '+msg);return}closeModal('clientModal');await syncFromCloud()});
 stockForm.addEventListener('submit',async e=>{e.preventDefault();const id=sId.value,old=state.stock.find(x=>x.id===id),payload={user_id:currentUser.id,name:sName.value.trim(),category:sCategory.value||null,qty:Number(sQty.value||0),updated_at:new Date().toISOString()};let error;if(old){({error}=await db.from('stock').update(payload).eq('id',id))}else{({error}=await db.from('stock').insert(payload))}if(error){alert('Não consegui salvar o estoque: '+error.message);return}closeModal('stockModal');await syncFromCloud()});
 function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===page));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
-[newOrderSide,newOrderTop,fab].forEach(b=>b.addEventListener('click',newOrder));newStock.addEventListener('click',newStockItem);search.addEventListener('input',renderOrders);oClient.addEventListener('change',applyClientSelection);oProduct.addEventListener('input',resolveStockSelection);
+[newOrderSide,newOrderTop,fab].forEach(b=>b.addEventListener('click',newOrder));newClient.addEventListener('click',newClientItem);newStock.addEventListener('click',newStockItem);search.addEventListener('input',renderOrders);oClient.addEventListener('change',applyClientSelection);oProduct.addEventListener('input',resolveStockSelection);
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
 backupBtn.addEventListener('click',()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup-fina-estampa-'+todayISO()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
-restoreInput.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text()),d=obj.data||obj;if(!Array.isArray(d.orders)||!Array.isArray(d.stock))throw new Error();if(confirm('Importar este backup e substituir os dados online atuais?')){if(!currentUser)throw new Error('Faça login novamente.');let {error}=await db.from('orders').delete().eq('user_id',currentUser.id);if(error)throw error;({error}=await db.from('stock').delete().eq('user_id',currentUser.id));if(error)throw error;if(d.orders.length){const rows=d.orders.map(o=>({user_id:currentUser.id,code:o.code,client:o.client,phone:o.phone||null,product:o.product,qty:Number(o.qty||1),status:o.status||'Confirmado',total:Number(o.total||0),paid:Number(o.paid||0),due:o.due||null,pay_method:o.payMethod||o.pay_method||null,notes:o.notes||null,created_at:o.created||o.created_at||new Date().toISOString(),updated_at:o.updated||o.updated_at||new Date().toISOString()}));({error}=await db.from('orders').insert(rows));if(error)throw error}if(d.stock.length){const rows=d.stock.map(s=>({user_id:currentUser.id,name:s.name,category:s.category||null,qty:Number(s.qty||0)}));({error}=await db.from('stock').insert(rows));if(error)throw error}await syncFromCloud();alert('Backup importado e sincronizado com a nuvem.')}}catch(err){alert('Não consegui importar: '+(err?.message||'arquivo inválido.'))}e.target.value=''});
+restoreInput.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text()),d=obj.data||obj;if(!Array.isArray(d.orders)||!Array.isArray(d.stock))throw new Error();if(confirm('Importar este backup e substituir os dados online atuais?')){if(!currentUser)throw new Error('Faça login novamente.');let {error}=await db.from('orders').delete().eq('user_id',currentUser.id);if(error)throw error;({error}=await db.from('stock').delete().eq('user_id',currentUser.id));if(error)throw error;if(d.orders.length){const rows=d.orders.map(o=>({user_id:currentUser.id,code:o.code,client:o.client,phone:o.phone||null,product:o.product,qty:Number(o.qty||1),status:o.status||'Confirmado',total:Number(o.total||0),paid:Number(o.paid||0),due:o.due||null,pay_method:o.payMethod||o.pay_method||null,notes:o.notes||null,created_at:o.created||o.created_at||new Date().toISOString(),updated_at:o.updated||o.updated_at||new Date().toISOString()}));({error}=await db.from('orders').insert(rows));if(error)throw error}if(d.stock.length){const rows=d.stock.map(s=>({user_id:currentUser.id,name:s.name,category:s.category||null,qty:Number(s.qty||0)}));({error}=await db.from('stock').insert(rows));if(error)throw error}if(Array.isArray(d.clients)&&d.clients.length){const rows=d.clients.map(x=>({user_id:currentUser.id,name:x.name,phone:x.phone||null}));({error}=await db.from('clients').insert(rows));if(error)throw error}await syncFromCloud();alert('Backup importado e sincronizado com a nuvem.')}}catch(err){alert('Não consegui importar: '+(err?.message||'arquivo inválido.'))}e.target.value=''});
 csvBtn.addEventListener('click',()=>{const head=['Pedido','Cliente','Telefone','Produto','Quantidade','Valor total','Recebido','Saldo','Status','Prazo','Pagamento','Observações'];const rows=state.orders.map(o=>[o.code,o.client,o.phone,o.product,o.qty,o.total,o.paid,Math.max(Number(o.total)-Number(o.paid),0),o.status,o.due,o.payMethod,o.notes]);const esc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[head,...rows].map(r=>r.map(esc).join(';')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pedidos-fina-estampa-'+todayISO()+'.csv';a.click()});
 clearBtn.addEventListener('click',async()=>{if(confirm('Tem certeza? Isso apaga TODOS os pedidos e o estoque da tua conta, inclusive de outros aparelhos. Faça um backup antes.')){if(confirm('Confirma novamente que deseja apagar tudo da nuvem?')){if(!currentUser){alert('Faça login novamente.');return}let {error}=await db.from('orders').delete().eq('user_id',currentUser.id);if(error){alert('Não consegui apagar os pedidos: '+error.message);return}({error}=await db.from('clients').delete().eq('user_id',currentUser.id));if(error){alert('Não consegui apagar os clientes: '+error.message);return}({error}=await db.from('stock').delete().eq('user_id',currentUser.id));if(error){alert('Não consegui apagar o estoque: '+error.message);return}await syncFromCloud();alert('Todos os dados foram apagados da nuvem.')}}});
 [logoutBtn,logoutMobile].forEach(b=>b.addEventListener('click',async()=>{await db.auth.signOut();currentUser=null;showLogin('Você saiu da conta.')}));
