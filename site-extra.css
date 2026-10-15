@@ -46,3 +46,12 @@
 .product-category .category-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:850px){.product-category .category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.product-category{padding:23px 14px}.product-category .category-grid{grid-template-columns:1fr}}
+
+.local-search{background:#fff;padding:64px 0}
+.local-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.local-links a{display:block;background:#f7f5ef;border:1px solid #dce1d9;padding:20px;transition:.2s}
+.local-links a:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(16,40,44,.09)}
+.local-links b{display:block;font:700 22px 'Playfair Display',serif;color:#10282c;margin-bottom:7px}
+.local-links span{display:block;color:#637477;font-size:13px;line-height:1.55}
+.local-cta{margin-top:20px}
+@media(max-width:760px){.local-links{grid-template-columns:1fr}.local-search{padding:48px 0}}
